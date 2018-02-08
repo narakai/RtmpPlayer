@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                >
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
-    <tv.danmaku.ijk.media.widget.media.IjkVideoView
-        android:id="@+id/ijkPlayer"
+    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+        android:id="@+id/player_view"
         android:layout_width="match_parent"
-        android:background="@color/black_overlay"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:resize_mode="fill"
+        app:surface_type="texture_view"
+        app:use_controller="false" />
 
     <Button
-        android:id="@+id/fullscreen"
+        android:id="@+id/retry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="fullscreen" />
+        android:textAllCaps="true"
+        android:text="Retry"/>
 </RelativeLayout>

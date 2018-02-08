@@ -1,70 +1,63 @@
 package www.clem.com.rtmpplayer;
 
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import tv.danmaku.ijk.media.player.IjkMediaPlayer;
-import tv.danmaku.ijk.media.widget.media.AndroidMediaController;
-import tv.danmaku.ijk.media.widget.media.IjkVideoView;
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.ext.rtmp.RtmpDataSourceFactory;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 
 public class MainActivity extends AppCompatActivity {
-    IjkVideoView videoView;
+    SimpleExoPlayer mSimpleExoPlayer;
+    SimpleExoPlayerView playerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button button = (Button) findViewById(R.id.fullscreen);
+        Button button = findViewById(R.id.retry);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setOrientation(getResources().getConfiguration().orientation);
+                retry();
             }
         });
-        IjkMediaPlayer.loadLibrariesOnce(null);
-        IjkMediaPlayer.native_profileBegin("libijkplayer.so");
-        videoView = findViewById(R.id.ijkPlayer);
-        AndroidMediaController controller = new AndroidMediaController(this, false);
-        videoView.setMediaController(controller);
-        String url = "rtmp://119.23.19.90/live/livestream";
-        // String url = "http://o6wf52jln.bkt.clouddn.com/演员.mp3";
-        videoView.setVideoURI(Uri.parse(url));
-        videoView.start();
+
     }
 
-    private void setOrientation(int orientation) {
-        if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    private void retry() {
+        stop();
+        play();
+    }
+
+    private void play() {
+        String url = "rtmp://119.23.19.90/live/livestream";
+        mSimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(this), new DefaultTrackSelector(), new DefaultLoadControl());
+        playerView = findViewById(R.id.player_view);
+        playerView.setPlayer(mSimpleExoPlayer);
+        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(url), new RtmpDataSourceFactory(), new DefaultExtractorsFactory(), null, null);
+        if (mSimpleExoPlayer != null) {
+            mSimpleExoPlayer.prepare(mediaSource);
+            mSimpleExoPlayer.setPlayWhenReady(true);
         }
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //  videoView.pause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        videoView.resume();
+    private void stop() {
+        if (mSimpleExoPlayer != null) {
+            mSimpleExoPlayer.setPlayWhenReady(false);
+            mSimpleExoPlayer.release();
+        }
     }
 }
